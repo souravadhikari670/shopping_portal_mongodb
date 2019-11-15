@@ -1,0 +1,82 @@
+<%- include('bootstrap') %>
+<!-- Image and text -->
+<style>
+    .btn,
+    input {
+        box-shadow: none !important;
+    }
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">shopping portal</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/">Products</a>
+            </li>
+        </ul>
+        <form action="/logout" method="POST" class="form-inline my-2 my-lg-0">
+            <button class="btn btn-outline-danger float-right my-2 my-sm-0">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="row">
+                <% cartArray.forEach(function(pro) { %>
+                <div class="col-md-4">
+                    <div class="card shadow-lg" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Name: <%= pro.name %></h5>
+                            <p>Des: <%= pro.des %></p>
+                            <p>Quantity: <span id="productQty<%= pro._id %>"><%= pro.qty %></span></p>
+                            <p>Total Price: <%= pro.price %></p>
+                            <div class="row">
+                                <div class="col-12">
+                                    <center>
+                                        <form action="/api/cart/deleteproduct/<%= pro.pid %>" method="POST">
+                                            <button class="btn btn-danger" type="submit">
+                                                Remove</button>
+                                        </form>
+                                    </center>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <div class="col-md-4 mt-5 d-flex justify-content-center">
+            <div class="card shadow-lg" style="width: 18rem;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <center>
+                                <h5 class="display-5">My Cart</h5>
+                            </center>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Total : <%= total %></h5>
+                    <% if(total != 0) { %>
+                    <a href="/api/checkout/mycheckout">
+                        <button class="btn btn-primary mt-4">checkout</button>
+                    </a>
+                    <% } %>
+                    <% if(total == 0) { %>
+                    <a href="/api/checkout/mycheckout">
+                        <button class="btn btn-primary mt-4" disabled>checkout</button>
+                    </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

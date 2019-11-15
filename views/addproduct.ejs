@@ -1,0 +1,161 @@
+<%- include('bootstrap') %>
+<!-- Image and text -->
+<nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+      <img src="" width="30" height="30" class="d-inline-block align-top" alt="">
+      shopping portal
+    </a>
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <form action="/logout" method="POST">
+                <button class="btn btn-sm btn-danger">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+<div class="container-fluid shadow-lg mt-5" style="height: 80vh;">
+    <div class="row">
+        <div class="col-md-8 p-2">
+            <form id="form_id">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="productname"><strong>Product Name</strong></label>
+                        <input type="text" id="productname" name="productname" class="form-control">
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="productdes"><strong>Product Description</strong></label>
+                        <textarea type="text" id="productdes" name="productdes" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="productprice"><strong>Product Price </strong></label>
+                        <input type="number" name="productprice" id="productprice" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="productavailable"><strong>Product Available</strong></label>
+                        <input type="number" id="productavailable" name="productavailable" class="form-control">
+                    </div>
+                    <div class="col-md-12 mb-3">
+                       <center>
+                           <button class="btn btn-primary" id="btnaddproduct"
+                            onclick="addProduct(event)" >Add Product</button>
+                        </center>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4 mt-5 d-flex justify-content-center">
+            <div class="card shadow-sm" style="width: 16rem;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="text-center mb-5">Admin Profile</h5>
+                            </div>
+                        </div>
+                        <h5 class="card-title">Name : admin</h5>
+                        <h6>admin@gmail.com</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                    <a href="/api/admin/viewproduct">
+                                        <button class="btn btn-dark mt-4">view products</button>
+                                    </a>
+                                  
+                            </div>
+                            <div class="col-6">
+                                    <a href="/api/admin/confirm">
+                                        <button class="btn btn-dark mt-4">checkout products</button>
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //disabel back button
+    window.location.hash = "no-back-button";
+        window.location.hash =
+            "Again-No-back-button"; //again because google chrome don't insert first hash into history
+        window.onhashchange = function () {
+            window.location.hash = "no-back-button";
+        }
+
+    function addProduct(event){
+        event.preventDefault()
+        
+        $(document).ready(function(){
+            if($("#productname").val() != '' ){
+                if(isNaN($("#productname").val())){
+                    if($("#productdes").val() != '' ){
+                        if($("#productprice").val() != '' ){
+                            if($("#productavailable").val() != '' ){
+
+                                var productname = $('#productname').val()
+                                var productdes = $('#productdes').val()
+                                var productprice = $('#productprice').val()
+                                var productavailable = $('#productavailable').val()
+
+                                $.ajax({
+                                   
+                                    method: "POST",
+                                    url: "/api/admin/addproduct",
+                                    data: {
+                                        productname:productname,
+                                        productdes:productdes,
+                                        productprice:productprice,
+                                        productavailable:productavailable
+                                    },
+                                    success: function(responce){
+                                        if( responce.success === true ){
+                                            Swal.fire({
+                                            type: 'success',
+                                            text: 'Successfully added',
+                                        })
+                                                    $('#productname').val('')
+                                                    $('#productdes').val('')
+                                                    $('#productprice').val('')
+                                                    $('#productavailable').val('')
+                                        }
+                                    }
+                                })
+
+                            }else{
+                                Swal.fire({
+                                    type: 'warning',
+                                    text: 'Type product availablibility',
+                                })
+                            }
+                        }else{
+                            Swal.fire({
+                                type: 'warning',
+                                text: 'Type product price',
+                            })
+                        }
+                    }else{
+                        Swal.fire({
+                            type: 'warning',
+                            text: 'Type product description',
+                        })
+                    }
+                }else{
+                    Swal.fire({
+                        type: 'warning',
+                        text: 'product name should not be a number',
+                    })
+                }
+            }else{
+                Swal.fire({
+                        type: 'warning',
+                        text: 'Type product name',
+                    })
+            }
+        })
+    }
+
+</script>

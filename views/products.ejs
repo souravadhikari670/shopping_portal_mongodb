@@ -1,0 +1,156 @@
+<%- include('bootstrap') %>
+<!-- Image and text -->
+<nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+        <img src="" width="30" height="30" class="d-inline-block align-top" alt="">
+        view products
+    </a>
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+            <a href="/api/admin/addproduct" class="nav-link">
+                Add product
+            </a>
+        </li>
+        </ul>
+            <form action="/logout" method="POST" class="form-inline my-2 my-lg-0">
+                <button class="btn btn-outline-danger my-2 my-sm-0">Logout</button>
+            </form>
+</nav>
+
+<div class="container-fluid mt-5">
+    <div class="row">
+        <% product.forEach(function(pro) { %>
+        <div class="col-md-3">
+            <div class="card shadow-lg" style="width: 16rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Name: <%= pro.productname %></h5>
+                    <p>Des: <%= pro.productdes %></p>
+                    <p>Price: <%= pro.productprice %></p>
+                    <p>Available: <%= pro.productavailable %></p>
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn btn-danger mt-4" onclick="deleteProduct('<%= pro._id %>', 'event')">
+                                Delete</button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-dark mt-4" onclick="editProduct('<%= pro._id %>', 'event')">
+                                Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" tabindex="-1" id="editModal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="productname"><strong>Product Name</strong></label>
+                            <input type="text" id="productname" name="productname" class="form-control">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="productdes"><strong>Product Description</strong></label>
+                            <textarea type="text" id="productdes" name="productdes" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="productprice"><strong>Product Price </strong></label>
+                            <input type="number" name="productprice" id="productprice" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="productavailable"><strong>Product Available</strong></label>
+                            <input type="number" id="productavailable" name="productavailable" class="form-control">
+                        </div>
+                        <input type="text" id="productid" hidden>
+                        <div class="col-md-12 mb-3">
+                            <center>
+                                <button class="btn btn-primary" id="btnaddproduct" onclick="saveProduct(event)">Add
+                                    Product</button>
+                            </center>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function deleteProduct(pid, event) {
+
+        $(document).ready(function () {
+            $.ajax({
+                method: "POST",
+                url: '/api/admin/deleteproduct/' + pid,
+                success: function (responce) {
+                    if (responce.success === true) {
+                        location.reload()
+                    }
+                }
+            })
+        })
+    }
+
+    function editProduct(pid, event) {
+    
+        $(document).ready(function(){
+            $('#editModal').modal({
+                show: true
+            });
+
+            $.ajax({
+                method:"POST",
+                url:'/api/admin/editproduct/'+pid,
+                success: function(responce){
+                    if( responce.success === true ){
+                        $('#productname').val(responce.product.productname)
+                        $('#productdes').val(responce.product.productdes)
+                        $('#productprice').val(responce.product.productprice)
+                        $('#productavailable').val(responce.product.productavailable)
+                        $('#productid').val(responce.product._id)
+                    }
+                }
+            })
+        })
+    }
+    function saveProduct(event){
+        event.preventDefault()
+        $(document).ready(function(){
+            var productname = $('#productname').val()
+            var productdes = $('#productdes').val()
+            var productprice = $('#productprice').val()
+            var productavailable = $('#productavailable').val()
+            var pid = $('#productid').val()
+            $.ajax({
+                
+                method: "POST",
+                url: "/api/admin/saveproduct/"+pid,
+                data: {
+                    productname:productname,
+                    productdes:productdes,
+                    productprice:productprice,
+                    productavailable:productavailable
+                },
+                success: function(responce){
+                    if( responce.success === true ){
+                        location.reload()
+                    }
+                }
+            })
+        })
+    }
+</script>

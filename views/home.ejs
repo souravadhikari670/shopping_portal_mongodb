@@ -1,0 +1,177 @@
+<%- include('bootstrap') %>
+<!-- Image and text -->
+<style>
+    .btn,
+    input {
+        box-shadow: none !important;
+    }
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">shopping portal</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        <ul class="navbar-nav mr-auto">
+            <% if(! auth ) { %>
+            <li class="nav-item active">
+                <a class="nav-link" href="/api/auth/login">Login </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/api/auth/register">Register</a>
+            </li>
+            <% } %>
+            <% if(auth) { %>
+            <li class="nav-item">
+                <a class="nav-link" href="/api/cart/mycart">view cart</a>
+            </li>
+            <% } %>
+        </ul>
+
+        <% if( auth ) { %>
+        <form action="/logout" method="POST" class="form-inline my-2 my-lg-0">
+            <button class="btn btn-outline-danger float-right my-2 my-sm-0">Logout</button>
+        </form>
+        <% } %>
+    </div>
+</nav>
+
+<div class="container-fluid mt-5">
+    <div class="row">
+        <% if(auth) { %>
+        <div class="col-md-8">
+        <% } %>
+        <% if(!auth) { %>
+        <div class="col-12">
+        <% } %>
+            <div class="row">
+                <% product.forEach(function(pro) { %>
+                <div class="col-md-4">
+                    <div class="card shadow-lg" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Name: <%= pro.productname %></h5>
+                            <p>Des: <%= pro.productdes %></p>
+                            <p>Price: <%= pro.productprice %></p>
+                            <% if( pro.status ) { %>
+                            <p>Available: <span id="productQty<%= pro._id %>"><%= pro.productavailable %></span></p>
+                            <% } %>
+                            <% if( !pro.status ) { %>
+                            <p>Available: <span id="productQty<%= pro._id %>" class="text-danger">Outof stock!</span></p>
+                            <% } %>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" id="productId<%= pro._id %>" hidden
+                                        value="<%= pro.productavailable %>">
+                                    <input type="number" id="<%= pro._id %>" placeholder="Qty" class="form-control">
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn btn-dark" onclick="addToCart('<%= pro._id %>')">
+                                        Add to cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% if(auth) { %>
+        <div class="col-md-4 mt-5 d-flex justify-content-center">
+            <div class="card shadow-lg" style="width: 18rem;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <center><h5 class="display-5">My Profile</h5></center>
+                        </div>
+                    </div>
+                    <h5 class="card-title"><%= user.fullname %></h5>
+                    <h6><%= user.email %></h6>
+                    <h6><%= user.address %></h6>
+                    <h6><%= user.mobileno %></h6>
+                    <a href="/api/cart/mycart">
+                        <button class="btn btn-primary mt-4">view cart</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</div>
+</div>
+
+<script>
+    function addToCart(pid) {
+
+        $(document).ready(function () {
+
+            if ($('#' + pid).val() != '') {
+                if (!isNaN($('#' + pid).val())) {
+                    if ($('#' + pid).val() <=  Number($('#productId' + pid).val())) {
+                        if ($('#' + pid).val() != 0) {
+                            $.ajax({
+                                method: 'POST',
+                                url: '/api/cart/addtocart/' + pid,
+                                data: {
+                                    qty: $('#' + pid).val()
+                                },
+                                success: function (responce) {
+                                    if (responce.success === true) {
+
+                                        Swal.fire({
+                                            type: 'success',
+                                            text: 'Added to cart',
+                                        })
+                                        $('#' + pid).val('')
+                                        if(responce.qty != 0)
+                                            $('#productQty' + pid).html(responce.qty)
+                                        else
+                                           { 
+                                               $('#productQty' + pid).html('Outof stock!')
+                                               $('#productQty' + pid).addClass('text-danger')
+                                            }
+
+                                    }
+                                    if (responce.user === 'error') {
+                                        Swal.fire({
+                                            type: 'error',
+                                            text: 'please login or register first',
+                                        })
+                                    }
+                                }
+                            })
+
+                        } else {
+                            $('#' + pid).val('')
+                            Swal.fire({
+                                type: 'warning',
+                                text: 'Qty must be greater than 0',
+                            })
+                        }
+
+                    } else {
+                        $('#' + pid).val('')
+                        Swal.fire({
+                            type: 'warning',
+                            text: 'Qty must be lessthan availability',
+                        })
+                    }
+                } else {
+                    $('#' + pid).val('')
+                    Swal.fire({
+                        type: 'warning',
+                        text: 'Qty must be a number',
+                    })
+                }
+            } else {
+                Swal.fire({
+                    type: 'warning',
+                    text: 'Type Qty',
+                })
+            }
+
+        })
+    }
+</script>

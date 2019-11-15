@@ -1,0 +1,61 @@
+<%- include('bootstrap') %>
+<!-- Image and text -->
+<style>
+    .btn,
+    input {
+        box-shadow: none !important;
+    }
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">shopping portal</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/api/admin/addproduct">Add Product</a>
+            </li>
+        </ul>
+        <form action="/logout" method="POST" class="form-inline my-2 my-lg-0">
+            <button class="btn btn-outline-danger float-right my-2 my-sm-0">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="container-fluid mt-5">
+
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped"">
+                <thead class=" thead-dark">
+                <tr class="text-center">
+                    <th scope="col">Date</th>
+                    <th scope="col">pId</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Total Price</th>
+                    <th scope="col">User Name</th>
+                    <th scope="col">User Address</th>
+                    <th scope="col">User Mobile</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <% checkoutArray.forEach(function(pro) { %>
+                    <tr class="text-center">
+                        <td><%= pro.pdate %></td>
+                        <td><%= pro.pid %></td>
+                        <td><%= pro.pqty %></td>
+                        <td><%= pro.pprice %></td>
+                        <td><%= pro.uname %></td>
+                        <td><%= pro.uaddress %></td>
+                        <td><%= pro.umobile %></td>
+                    </tr>
+                    <% }) %>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
