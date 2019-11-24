@@ -26,7 +26,7 @@ router.post('/addtocart/:pid',
 
                             Product.findByIdAndUpdate(req.params.pid, {$set:{productavailable: product.productavailable-req.body.qty}},{new:true})
                             .then((product)=>{
-                                console.log(product)
+                          
                                 if(product.productavailable == 0 ){
                                     Product.findByIdAndUpdate(req.params.pid, {$set:{status: false}},{new:true})
                                     .then(()=>{
@@ -67,7 +67,23 @@ router.post('/addtocart/:pid',
             .then((cart)=>{
                 Product.findByIdAndUpdate(req.params.pid, {$set:{productavailable: product.productavailable-req.body.qty}},{new:true})
                 .then((product)=>{
-                    res.send({ success: true, qty:product.productavailable })
+                    if(product.productavailable == 0 ){
+                        Product.findByIdAndUpdate(req.params.pid, {$set:{status: false}},{new:true})
+                        .then(()=>{
+                            res.send({ success: true, qty:product.productavailable })
+                        })
+                        .catch((error)=>{
+                            console.log(error)
+                        })
+                    }else{
+                        Product.findByIdAndUpdate(req.params.pid, {$set:{status: true}},{new:true})
+                        .then(()=>{
+                            res.send({ success: true, qty:product.productavailable })
+                        })
+                        .catch((error)=>{
+                            console.log(error)
+                        })
+                    }
                    
                 })
                 .catch((error)=>{

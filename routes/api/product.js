@@ -1,19 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const multer = require('multer')
-
-// // configuration multer
-// var storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//       cb(null, './routes/public/product')
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, Date.now() + file.originalname)
-//     }
-//   })
-   
-//   var upload = multer({ storage: storage })
 
 //schema
 const Product = require('../../modal/product')
@@ -21,11 +8,12 @@ const Checkout = require('../../modal/checkout')
 const Profile = require('../../modal/profile')
 
 //add product panel
-router.get('/addproduct',(req,res)=>{
+router.get('/addproduct',passport.authenticate('jwt',{session:false,failureRedirect:'/sessionexpire'}),(req,res)=>{
     res.render('addproduct')
 })
 
-router.post('/addproduct',(req, res)=>{
+router.post('/addproduct',
+passport.authenticate('jwt',{session:false,failureRedirect:'/sessionexpire'}),(req, res)=>{
 
     const newProduct = new Product({
         productname:req.body.productname,
@@ -45,17 +33,18 @@ router.post('/addproduct',(req, res)=>{
 })
 
 //view products
-router.get('/viewproduct',(req, res)=>{
-        Product.find()
-        .then((product)=>{
-                res.render('products',{product})
-        })
-        .catch((error)=>{
-            console.log(error)
-        })
+router.get('/viewproduct',
+passport.authenticate('jwt',{session:false,failureRedirect:'/sessionexpire'}),(req, res)=>{
+    Product.find()
+    .then((product)=>{
+            res.render('products',{product})
+    })
+    .catch((error)=>{
+        console.log(error)
+    })
 })
 
-router.post('/deleteproduct/:pid',(req, res)=>{
+router.post('/deleteproduct/:pid',passport.authenticate('jwt',{session:false,failureRedirect:'/sessionexpire'}),(req, res)=>{
 
     Product.findByIdAndRemove(req.params.pid)
     .then((product)=>{
@@ -66,7 +55,7 @@ router.post('/deleteproduct/:pid',(req, res)=>{
     })
 
 })
-router.post('/editproduct/:pid',(req, res)=>{
+router.post('/editproduct/:pid',passport.authenticate('jwt',{session:false,failureRedirect:'/sessionexpire'}),(req, res)=>{
 
     Product.findById(req.params.pid)
     .then((product)=>{
@@ -93,11 +82,28 @@ router.post('/editproduct/:pid',(req, res)=>{
     })
 
 })
-router.post('/saveproduct/:pid',(req, res)=>{
+router.post('/saveproduct/:pid',passport.authenticate('jwt',{session:false,failureRedirect:'/sessionexpire'}),(req, res)=>{
 
     Product.findByIdAndUpdate(req.params.pid, req.body, {new: true})
     .then((product)=>{
-        res.send({success: true})
+        if(product.productavailable == 0 ){
+            Product.findByIdAndUpdate(req.params.pid, {$set:{status: false}},{new:true})
+            .then(()=>{
+                res.send({ success: true })
+            })
+            .catch((error)=>{
+                console.log(error)
+            })
+        }else{
+            Product.findByIdAndUpdate(req.params.pid, {$set:{status: true}},{new:true})
+            .then(()=>{
+                res.send({ success: true })
+            })
+            .catch((error)=>{
+                console.log(error)
+            })
+        }
+
     })
     .catch((error)=>{
         console.log(error)
@@ -105,44 +111,9 @@ router.post('/saveproduct/:pid',(req, res)=>{
 
 })
 
-// function checkProduct(){
-//     Product.find()
-//     .then((product)=>{
-
-//         for( i=0;i<product.length;i++ ){
-            
-//             if( product[i].productavailable == 0 ){
-
-//                 Product.findOneAndUpdate({_id: product[i]._id}, {$set:{status: false}}, {new: true})
-//                 .then((product)=>{
-//                     setInterval(checkProduct,1000)
-//                 })
-//                 .catch((error)=>{
-//                     console.log(error)
-//                 })
-//             }else{
-                
-//                 Product.findOneAndUpdate({_id: product[i]._id}, {$set:{status: true}}, {new: true})
-//                 .then((product)=>{
-//                     setInterval(checkProduct,1000)
-//                 })
-//                 .catch((error)=>{
-//                     console.log(error)
-//                 })
-//             }
-
-//         }
-
-//     })
-//     .catch((error)=>{
-//         console.log(error)
-//     })
-// }
-// checkProduct()
-
 
 //confirm order
-router.get('/confirm', (req, res)=>{
+router.get('/confirm',passport.authenticate('jwt',{session:false,failureRedirect:'/sessionexpire'}), (req, res)=>{
     
     var checkoutArray = []
     Checkout.find()

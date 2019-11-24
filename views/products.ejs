@@ -26,7 +26,12 @@
                     <h5 class="card-title">Name: <%= pro.productname %></h5>
                     <p>Des: <%= pro.productdes %></p>
                     <p>Price: <%= pro.productprice %></p>
+                    <% if(pro.status) { %>
                     <p>Available: <%= pro.productavailable %></p>
+                    <% } %>
+                    <% if(!pro.status) { %>
+                    <p class="text-danger">Available: Outof stock!</p>
+                    <% } %>
                     <div class="row">
                         <div class="col-6">
                             <button class="btn btn-danger mt-4" onclick="deleteProduct('<%= pro._id %>', 'event')">
